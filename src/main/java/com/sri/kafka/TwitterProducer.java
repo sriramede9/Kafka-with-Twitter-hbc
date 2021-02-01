@@ -58,17 +58,24 @@ public class TwitterProducer {
 
 		Properties props = new Properties();
 		props.put("bootstrap.servers", "localhost:9092");
-		
-		props.put("batch.size", 16384);
-		props.put("linger.ms", 1);
+
 		props.put("buffer.memory", 33554432);
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-		
+
 		// all about acks
 		props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
 		props.put("acks", "all");
 		props.put("retries", Integer.MAX_VALUE);
+
+		// High Throughput Settings
+
+		// 16 bytes
+		props.put("batch.size", 16384);
+		// 20 seconds
+		props.put("linger.ms", 20);
+		// snappy compression
+		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
 
 		// producer
 		Producer<String, String> producer = new KafkaProducer<String, String>(props);

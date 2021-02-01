@@ -62,3 +62,20 @@ Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 		props.put("acks", "all");
 		props.put("retries", Integer.MAX_VALUE);
 ```
+
+## Linger ms and batch size to increase throughput
+
+* To compress the message using snappy
+* linger.ms will stall the message to reach the given batch size which is 16MB and time or size whichever comes first, the message will be dispatched to kafka broker
+
+```
+		// High Throughput Settings
+
+		// 16 bytes
+		props.put("batch.size", 16384);
+		// 20 seconds
+		props.put("linger.ms", 20);
+		// snappy compression
+		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+
+```
