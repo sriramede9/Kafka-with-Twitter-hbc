@@ -41,6 +41,8 @@ Properties props = new Properties();
 
 ## Shutdown Hook
 
+```
+
 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			log.info("stopping application ...");
 			log.info("shutting down client from twitter");
@@ -50,3 +52,5 @@ Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			log.info("done!");
 
 		}));
+
+```
