@@ -54,3 +54,11 @@ Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 		}));
 
 ```
+
+## Importance of Idempotent Producer Problem and Snippet to ignore such problem
+
+```
+	props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
+		props.put("acks", "all");
+		props.put("retries", Integer.MAX_VALUE);
+```
