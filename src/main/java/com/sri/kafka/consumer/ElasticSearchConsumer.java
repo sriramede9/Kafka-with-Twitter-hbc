@@ -1,6 +1,9 @@
 package com.sri.kafka.consumer;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -8,6 +11,10 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -75,23 +82,75 @@ public class ElasticSearchConsumer {
 
 	}
 
+	public static KafkaConsumer<String, String> CreateConsumer(String topic) {
+
+//		String topic = "twitter";
+		String bootstrapserver = "localhost:9092";
+		String groupId = "twitter_consumer_group";
+
+		Properties props = new Properties();
+		props.put("bootstrap.servers", bootstrapserver);
+		props.put("group.id", groupId);
+//		props.put("enable.auto.commit", "true");
+//		props.put("auto.commit.interval.ms", "1000");
+		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+		consumer.subscribe(Arrays.asList(topic));
+//		while (true) {
+//			ConsumerRecords<String, String> records = consumer.poll(100);
+//			for (ConsumerRecord<String, String> record : records) {
+//
+//				System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
+////				consumerLogger.info("partition \t" + record.partition());
+//			}
+//
+//		}
+
+		return consumer;
+	}
+
 	public static void main(String[] args) throws IOException {
 
 //		RestHighLevelClient client = createClient();
 
 		RestHighLevelClient client = trail2();
 
-		String JsonString = "{\"foo\":\"bar\"}";
+		KafkaConsumer<String, String> consumer = CreateConsumer("twitter");
 
-		IndexRequest indexRequest = new IndexRequest("twitter", "tweets").source(JsonString, XContentType.JSON);
+		while (true) {
+			ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
-		IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
+			for (ConsumerRecord<String, String> record : records) {
 
-		consumerLogger.info(index.getId());
+				IndexRequest indexRequest = new IndexRequest("twitter", "tweets").source(record.value(),
+						XContentType.JSON);
+
+				IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
+
+				consumerLogger.info(index.getId());
+
+				try {
+					// small delay before we consume next batch
+
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+
+//		String JsonString = "{\"foo\":\"bar\"}";
+//
+//
 
 		// close the client
 
-		client.close();
+//		client.close();
 
 	}
 

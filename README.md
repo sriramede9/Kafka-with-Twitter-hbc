@@ -150,3 +150,32 @@ GET /twitter/tweets/D8_ZaHcBaCBESApmMUl1
   }
 }
 ```
+
+## Added Kafka-Consumer config and used Elastic Search to process the consumed records to index [twitter]
+
+```
+		while (true) {
+			ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+			for (ConsumerRecord<String, String> record : records) {
+
+				IndexRequest indexRequest = new IndexRequest("twitter", "tweets").source(record.value(),
+						XContentType.JSON);
+
+				IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);
+
+				consumerLogger.info(index.getId());
+
+				try {
+					// small delay before we consume next batch
+
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+```

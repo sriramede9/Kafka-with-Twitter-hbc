@@ -106,8 +106,9 @@ public class TwitterProducer {
 
 			if (msg != null) {
 
+				String topic = "twitter";
 				log.info(msg);
-				ProducerRecord<String, String> record = new ProducerRecord<String, String>("twitter", null, msg);
+				ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, null, msg);
 				producer.send(record, new Callback() {
 
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
