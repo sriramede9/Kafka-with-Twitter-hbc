@@ -79,3 +79,74 @@ Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
 
 ```
+
+## Elastic Search Set UP using Bonsai [sandbox]
+
+```
+create an index with console put request put /twitter
+add docs to the index
+put /twitter/{documentname}/id
+/twitter/tweets/1
+```
+## Set up Elastic Search config to JAVA
+
+```
+<dependency>
+    <groupId>org.elasticsearch.client</groupId>
+    <artifactId>elasticsearch-rest-high-level-client</artifactId>
+    <version>7.10.2</version>
+</dependency>
+```
+
+### Elastic Search Consumer config
+
+```
+	public static RestHighLevelClient createClient() {
+
+//		https://vvwqq42n2r:3wuhgyc6o@kafka-course-3974031019.us-east-1.bonsaisearch.net:443
+
+		String hostname = "kafka-course-3974031019.us-east-1.bonsaisearch.net";
+		String username = "vvwqq42n2r";
+		String password = "3wuhgyc6o";
+
+		// do if you are not running a local Elastic Search
+
+		final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+
+		RestClientBuilder builder = RestClient.builder(new HttpHost(hostname, 443, "https"))
+				.setHttpClientConfigCallback(new HttpClientConfigCallback() {
+
+					@Override
+					public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+						// TODO Auto-generated method stub
+						return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+					}
+				});
+
+		RestHighLevelClient client = new RestHighLevelClient(builder);
+		return client;
+
+	}
+```
+
+## Response
+```
+[main] INFO com.sri.kafka.consumer.ElasticSearchConsumer - D8_ZaHcBaCBESApmMUl1
+
+GET /twitter/tweets/D8_ZaHcBaCBESApmMUl1
+
+
+{
+  "_index": "twitter",
+  "_type": "tweets",
+  "_id": "D8_ZaHcBaCBESApmMUl1",
+  "_version": 1,
+  "_seq_no": 1,
+  "_primary_term": 1,
+  "found": true,
+  "_source": {
+    "foo": "bar"
+  }
+}
+```
