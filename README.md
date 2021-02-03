@@ -179,3 +179,13 @@ GET /twitter/tweets/D8_ZaHcBaCBESApmMUl1
 
 		}
 ```
+
+## Added unique Id which is same as tweet id to make the consumer idempotent
+
+```
+[main] INFO com.sri.kafka.consumer.ElasticSearchConsumer - idFromRecord 	 -->1357036689613611010
+
+// Now You can find the tweet with the same id on elastic search get /twitter/tweets/1357036689613611010
+
+
+```
