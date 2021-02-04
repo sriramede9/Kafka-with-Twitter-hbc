@@ -134,7 +134,7 @@ public class TwitterProducer {
 		Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
 		StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
 		// Optional: set up some followings and track terms
-		List<String> terms = Lists.newArrayList("kafka");
+		List<String> terms = Lists.newArrayList("kafka","politics","soccer","cnn");
 		hosebirdEndpoint.trackTerms(terms);
 
 		Authentication hosebirdAuth = new OAuth1("i4Dy8qCECbdRrGzqawBTdPY84",

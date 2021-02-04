@@ -189,3 +189,55 @@ GET /twitter/tweets/D8_ZaHcBaCBESApmMUl1
 
 
 ```
+
+## Logic to filter user who have more than 1000 followers on twitter a predicate in kafka-streams
+
+```
+	private static boolean extractIdFrom(String value) {
+
+		int asInt = JsonParser.parseString(value).getAsJsonObject().get("user").getAsJsonObject().get("followers_count")
+				.getAsInt();
+
+		if (asInt > 1000) {
+			return true;
+		}
+
+		return false;
+
+	}
+```
+
+## Kafka Stream Builder , config to build a stream builder that filter tweets based on our predicate
+
+```
+	Properties properties = new Properties();
+		properties.setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		// similar to consumer groups
+		properties.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "demo-kafka-streams");
+		properties.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
+		properties.setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
+		// create a topology
+
+		StreamsBuilder streamsBuilder = new StreamsBuilder();
+
+		// input topic
+
+		KStream<String, String> stream = streamsBuilder.stream("twitter");
+
+		KStream<String, String> filteredStream = stream.filter((k, jsonTweet) -> {
+			// filter for tweets which has a user of over 10000 followers
+
+			return extractIdFrom(jsonTweet);
+
+		});
+
+		filteredStream.to("important_tweets");
+
+		// build the topology
+
+		KafkaStreams kafkaStream = new KafkaStreams(streamsBuilder.build(), properties);
+
+		// start our streams application
+
+		kafkaStream.start();
+```
